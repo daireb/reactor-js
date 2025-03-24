@@ -164,4 +164,73 @@ export class Computed<T> implements IDependent, IReactive<T> {
 	private equals(a: T, b: T): boolean {
 		return a === b;
 	}
+
+	//#region Reactive List Methods
+
+	// Type guard to check if the computed value is an array
+	private isArray(): this is Computed<any[]> {
+		return Array.isArray(this.peek());
+	}
+
+	/**
+	 * Maps each element in the array to create a new computed array.
+	 * Only available when T is an array.
+	 */
+	mapItems<R>(selector: (item: T extends Array<infer U> ? U : never) => R): Computed<R[]> {
+		if (!this.isArray()) {
+			throw new Error("This operation is only available on computed arrays");
+		}
+
+		return new Computed<R[]>(() => {
+			const array = this.value as any[];
+			return array.map(selector);
+		});
+	}
+
+	/**
+	 * Filters elements in the array to create a new computed array.
+	 * Only available when T is an array.
+	 */
+	filterItems(predicate: (item: T extends Array<infer U> ? U : never) => boolean): Computed<T> {
+		if (!this.isArray()) {
+			throw new Error("This operation is only available on computed arrays");
+		}
+
+		return new Computed<T>(() => {
+			const array = this.value as any[];
+			return array.filter(predicate) as T;
+		});
+	}
+
+	/**
+	 * Checks if any element in the array satisfies the predicate.
+	 * Only available when T is an array.
+	 */
+	any(predicate: (item: T extends Array<infer U> ? U : never) => boolean): Computed<boolean> {
+		if (!this.isArray()) {
+			throw new Error("This operation is only available on computed arrays");
+		}
+
+		return new Computed<boolean>(() => {
+			const array = this.value as any[];
+			return array.some(predicate);
+		});
+	}
+
+	/**
+	 * Checks if all elements in the array satisfy the predicate.
+	 * Only available when T is an array.
+	 */
+	all(predicate: (item: T extends Array<infer U> ? U : never) => boolean): Computed<boolean> {
+		if (!this.isArray()) {
+			throw new Error("This operation is only available on computed arrays");
+		}
+
+		return new Computed<boolean>(() => {
+			const array = this.value as any[];
+			return array.every(predicate);
+		});
+	}
+
+	//#endregion
 }
