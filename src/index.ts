@@ -5,7 +5,7 @@ import { ReactiveList } from './reactive-list';
 
 export {
 	State,
+	ReactiveList,
 	Computed,
-	Observer,
-	ReactiveList
+	Observer
 }
