@@ -3,20 +3,20 @@ import { State, Computed, Observer } from '../index';
 describe('Integration tests', () => {
 	test('complex dependency chain should update correctly', () => {
 		// Create a few states
-		const firstName = new State<string>('John');
-		const lastName = new State<string>('Doe');
-		const showFullName = new State<boolean>(true);
+		const firstName = new State('John');
+		const lastName = new State('Doe');
+		const showFullName = new State(true);
 
 		// Create computed values with dependencies
-		const fullName = new Computed<string>(() =>
+		const fullName = new Computed(() =>
 			`${firstName.value} ${lastName.value}`
 		);
 
-		const displayName = new Computed<string>(() =>
+		const displayName = new Computed(() =>
 			showFullName.value ? fullName.value : firstName.value
 		);
 
-		const greeting = new Computed<string>(() =>
+		const greeting = new Computed(() =>
 			`Hello, ${displayName.value}!`
 		);
 
@@ -48,10 +48,10 @@ describe('Integration tests', () => {
 	});
 
 	test('should handle circular dependencies gracefully', () => {
-		const count = new State<number>(0);
+		const count = new State(0);
 
 		// This would cause a circular dependency if we're not careful
-		const doubled = new Computed<number>(() => {
+		const doubled = new Computed(() => {
 			const val = count.value * 2;
 			return val;
 		});

@@ -4,7 +4,7 @@ import { Observer } from '../observer';
 
 describe('Observer', () => {
 	test('should execute callback immediately with initial value', () => {
-		const state = new State<number>(42);
+		const state = new State(42);
 		const mockCallback = jest.fn();
 
 		Observer.watch(state, mockCallback);
@@ -13,7 +13,7 @@ describe('Observer', () => {
 	});
 
 	test('should execute callback when state value changes', () => {
-		const state = new State<number>(1);
+		const state = new State(1);
 		const mockCallback = jest.fn();
 
 		Observer.watch(state, mockCallback);
@@ -25,8 +25,8 @@ describe('Observer', () => {
 	});
 
 	test('should execute callback when computed value changes', () => {
-		const state = new State<number>(1);
-		const computed = new Computed<number>(() => state.value * 2);
+		const state = new State(1);
+		const computed = new Computed(() => state.value * 2);
 		const mockCallback = jest.fn();
 
 		Observer.watch(computed, mockCallback);
@@ -38,7 +38,7 @@ describe('Observer', () => {
 	});
 
 	test('should not execute callback for same value', () => {
-		const state = new State<string>('test');
+		const state = new State('test');
 		const mockCallback = jest.fn();
 
 		Observer.watch(state, mockCallback);
@@ -50,7 +50,7 @@ describe('Observer', () => {
 	});
 
 	test('should stop observing when disposed', () => {
-		const state = new State<number>(1);
+		const state = new State(1);
 		const mockCallback = jest.fn();
 
 		const observer = Observer.watch(state, mockCallback);
@@ -63,7 +63,7 @@ describe('Observer', () => {
 	});
 
 	test('multiple observers can observe the same state', () => {
-		const state = new State<number>(1);
+		const state = new State(1);
 
 		const mockCallback1 = jest.fn();
 		const mockCallback2 = jest.fn();
@@ -81,7 +81,7 @@ describe('Observer', () => {
 	});
 
 	test('disposing one observer does not affect others', () => {
-		const state = new State<number>(1);
+		const state = new State(1);
 
 		const mockCallback1 = jest.fn();
 		const mockCallback2 = jest.fn();

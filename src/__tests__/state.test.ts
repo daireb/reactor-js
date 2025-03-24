@@ -2,12 +2,12 @@ import { State } from '../state';
 
 describe('State', () => {
 	test('should initialize with the provided value', () => {
-		const state = new State<number>(42);
+		const state = new State(42);
 		expect(state.value).toBe(42);
 	});
 
 	test('should notify when value changes', () => {
-		const state = new State<number>(0);
+		const state = new State(0);
 		const mockCallback = jest.fn();
 
 		state.onChange(mockCallback);
@@ -17,7 +17,7 @@ describe('State', () => {
 	});
 
 	test('should not notify when value is the same', () => {
-		const state = new State<string>('test');
+		const state = new State('test');
 		const mockCallback = jest.fn();
 
 		state.onChange(mockCallback);
@@ -27,7 +27,7 @@ describe('State', () => {
 	});
 
 	test('peek() should return the current value without tracking dependencies', () => {
-		const state = new State<number>(42);
+		const state = new State(42);
 		expect(state.peek()).toBe(42);
 
 		// Modify value
@@ -36,7 +36,7 @@ describe('State', () => {
 	});
 
 	test('map() should create a derived computed value', () => {
-		const state = new State<number>(2);
+		const state = new State(2);
 		const doubled = state.map(x => x * 2);
 
 		expect(doubled.value).toBe(4);
@@ -46,7 +46,7 @@ describe('State', () => {
 	});
 
 	test('filter() should create a boolean computed value', () => {
-		const state = new State<number>(2);
+		const state = new State(2);
 		const isEven = state.filter(x => x % 2 === 0);
 
 		expect(isEven.value).toBe(true);
@@ -56,7 +56,7 @@ describe('State', () => {
 	});
 
 	test('onChange() should return a function that removes the listener', () => {
-		const state = new State<number>(0);
+		const state = new State(0);
 		const mockCallback = jest.fn();
 
 		const removeListener = state.onChange(mockCallback);
