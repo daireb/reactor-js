@@ -6,6 +6,8 @@ ReactorJS is a lightweight, reactive state management library for JavaScript and
 
 - **Reactive State**: Create observable state that automatically notifies dependents when values change
 - **Computed Values**: Define values that are derived from other state and automatically update
+- **Reactive Lists**: Manage collections of items with specialised list operations that maintain reactivity
+- **LINQ-style Operations**: Chain multiple transformations on reactive collections with fluent syntax
 - **Dependency Tracking**: Automatic tracking of dependencies between states and computed values
 - **Fluent API**: Intuitive methods for transforming and combining reactive state
 - **Type Safety**: Fully type-safe API with generics support throughout
@@ -76,6 +78,41 @@ count.value = 5; // Triggers updates
 observer.dispose();
 ```
 
+### Working with Lists
+
+```typescript
+import { ReactiveList, Computed, Observer } from 'reactor-js';
+
+// Create a reactive list of game entities
+const entities = new ReactiveList([
+  { id: 1, type: 'player', health: 100 },
+  { id: 2, type: 'enemy', health: 50 },
+  { id: 3, type: 'npc', health: 30 }
+]);
+
+// Filter for specific entity types
+const enemies = entities.filter(e => e.type === 'enemy');
+
+// Chain operations for more complex queries
+const lowHealthEnemies = enemies
+  .mapItems(e => ({ id: e.id, health: e.health }))
+  .filterItems(e => e.health < 30);
+
+// Create a computed value based on the list
+const enemyCount = new Computed(() => 
+  entities.value.filter(e => e.type === 'enemy').length
+);
+
+// Observe changes to the entities
+Observer.watch(enemyCount, count => {
+  console.log(`Enemy count: ${count}`);
+});
+
+// Update the list with reactive operations
+entities.add({ id: 4, type: 'enemy', health: 20 }); // Automatically updates all derived values
+entities.remove({ id: 2, type: 'enemy', health: 50 });
+```
+
 ## API Reference
 
 ### State<T>
@@ -98,6 +135,33 @@ A value derived from other reactive values.
 - `.map<R>(selector: (value: T) => R)`: Create a computed value based on this computed
 - `.filter(predicate: (value: T) => boolean)`: Create a computed boolean value
 - `.forceEager`: Control whether to compute immediately on invalidation
+
+When the computed value is an array, additional methods are available:
+
+- `.mapItems<R>(selector: (item: U) => R)`: Map each item in the array
+- `.filterItems(predicate: (item: U) => boolean)`: Filter the items in the array
+- `.any(predicate: (item: U) => boolean)`: Check if any item matches the predicate
+- `.all(predicate: (item: U) => boolean)`: Check if all items match the predicate
+
+### ReactiveList<T>
+
+A reactive collection of items with specialised operations.
+
+- `new ReactiveList<T>(initialItems?: T[])`: Create a new reactive list
+- `.value`: Get the current items array
+- `.length`: Get the number of items
+- `.peek()`: Get the current items without tracking dependencies
+- `.add(item: T)`: Add an item to the end of the list
+- `.insert(index: number, item: T)`: Insert an item at the specified index
+- `.remove(item: T)`: Remove an item from the list
+- `.removeAt(index: number)`: Remove the item at the specified index
+- `.update(index: number, item: T)`: Update an item at the specified index
+- `.clear()`: Remove all items from the list
+- `.replace(items: T[])`: Replace all items in the list
+- `.at(index: number)`: Get an item at the specified index
+- `.find(predicate: (item: T) => boolean)`: Find an item in the list
+- `.map<R>(selector: (item: T) => R)`: Create a computed array by mapping items
+- `.filter(predicate: (item: T) => boolean)`: Create a computed array by filtering items
 
 ### Observer
 
