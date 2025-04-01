@@ -4,8 +4,13 @@
   "description": "A lightweight reactive state management library for JavaScript and TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest"
+    "test": "npx jest",
+    "build": "npx tsc"
   },
+  "files": [
+    "dist"
+  ],
+  "outDir": "dist",
   "keywords": [],
   "author": "",
   "license": "ISC",
