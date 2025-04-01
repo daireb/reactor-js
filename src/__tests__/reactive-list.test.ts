@@ -190,4 +190,155 @@ describe('ReactiveList', () => {
 
 		expect(mockCallback).not.toHaveBeenCalled();
 	});
+
+	// Tests for item-specific listeners
+	describe('onItemAdded', () => {
+		test('should notify when an item is added', () => {
+			const list = new ReactiveList<number>([1, 2]);
+			const mockCallback = jest.fn();
+
+			list.onItemAdded(mockCallback);
+			list.add(3);
+
+			expect(mockCallback).toHaveBeenCalledWith(3, 2); // item, index
+		});
+
+		test('should notify when an item is inserted', () => {
+			const list = new ReactiveList<string>(['a', 'c']);
+			const mockCallback = jest.fn();
+
+			list.onItemAdded(mockCallback);
+			list.insert(1, 'b');
+
+			expect(mockCallback).toHaveBeenCalledWith('b', 1); // item, index
+		});
+
+		test('should notify for each item when replacing items', () => {
+			const list = new ReactiveList<number>([1, 2]);
+			const mockCallback = jest.fn();
+
+			list.onItemAdded(mockCallback);
+			list.replace([3, 4, 5]);
+
+			expect(mockCallback).toHaveBeenCalledTimes(3);
+			expect(mockCallback).toHaveBeenNthCalledWith(1, 3, 0);
+			expect(mockCallback).toHaveBeenNthCalledWith(2, 4, 1);
+			expect(mockCallback).toHaveBeenNthCalledWith(3, 5, 2);
+		});
+
+		test('should return a function that removes the listener', () => {
+			const list = new ReactiveList<number>([1, 2]);
+			const mockCallback = jest.fn();
+
+			const removeListener = list.onItemAdded(mockCallback);
+			list.add(3);
+			expect(mockCallback).toHaveBeenCalledTimes(1);
+
+			// Remove listener
+			removeListener();
+			list.add(4);
+			expect(mockCallback).toHaveBeenCalledTimes(1); // Still only called once
+		});
+	});
+
+	describe('onItemRemoved', () => {
+		test('should notify when an item is removed', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const mockCallback = jest.fn();
+
+			list.onItemRemoved(mockCallback);
+			list.remove(2);
+
+			expect(mockCallback).toHaveBeenCalledWith(2, 1); // item, index
+		});
+
+		test('should notify when an item is removed at index', () => {
+			const list = new ReactiveList<string>(['a', 'b', 'c']);
+			const mockCallback = jest.fn();
+
+			list.onItemRemoved(mockCallback);
+			list.removeAt(1);
+
+			expect(mockCallback).toHaveBeenCalledWith('b', 1); // item, index
+		});
+
+		test('should notify for each item when clearing the list', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const mockCallback = jest.fn();
+
+			list.onItemRemoved(mockCallback);
+			list.clear();
+
+			expect(mockCallback).toHaveBeenCalledTimes(3);
+			// Items should be removed from last to first to maintain correct indexes during removal
+			expect(mockCallback).toHaveBeenNthCalledWith(1, 3, 2);
+			expect(mockCallback).toHaveBeenNthCalledWith(2, 2, 1);
+			expect(mockCallback).toHaveBeenNthCalledWith(3, 1, 0);
+		});
+
+		test('should notify for each removed item when replacing items', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const mockCallback = jest.fn();
+
+			list.onItemRemoved(mockCallback);
+			list.replace([4, 5]);
+
+			expect(mockCallback).toHaveBeenCalledTimes(3);
+			// Items should be removed from last to first to maintain correct indexes during removal
+			expect(mockCallback).toHaveBeenNthCalledWith(1, 3, 2);
+			expect(mockCallback).toHaveBeenNthCalledWith(2, 2, 1);
+			expect(mockCallback).toHaveBeenNthCalledWith(3, 1, 0);
+		});
+
+		test('should return a function that removes the listener', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const mockCallback = jest.fn();
+
+			const removeListener = list.onItemRemoved(mockCallback);
+			list.remove(2);
+			expect(mockCallback).toHaveBeenCalledTimes(1);
+
+			// Remove listener
+			removeListener();
+			list.remove(1);
+			expect(mockCallback).toHaveBeenCalledTimes(1); // Still only called once
+		});
+
+		test('should not notify when item is not found', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const mockCallback = jest.fn();
+
+			list.onItemRemoved(mockCallback);
+			list.remove(4); // Not in the list
+
+			expect(mockCallback).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('integration tests for onItemAdded and onItemRemoved', () => {
+		test('both types of listeners should work simultaneously', () => {
+			const list = new ReactiveList<number>([1, 2, 3]);
+			const addMock = jest.fn();
+			const removeMock = jest.fn();
+			const changeMock = jest.fn();
+
+			list.onItemAdded(addMock);
+			list.onItemRemoved(removeMock);
+			list.onChange(changeMock);
+
+			// Replace operation should trigger both add and remove notifications
+			list.replace([2, 3, 4]);
+
+			// Should have 3 removes (1, 2, 3) and 3 adds (2, 3, 4)
+			expect(removeMock).toHaveBeenCalledTimes(3);
+			expect(addMock).toHaveBeenCalledTimes(3);
+			expect(changeMock).toHaveBeenCalledTimes(1);
+
+			// Check that 1 was removed
+			expect(removeMock).toHaveBeenCalledWith(1, 0);
+
+			// Check that 4 was added
+			expect(addMock).toHaveBeenCalledWith(4, 2);
+		});
+	});
 });
