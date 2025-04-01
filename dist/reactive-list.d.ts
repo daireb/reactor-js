@@ -7,6 +7,8 @@ export declare class ReactiveList<T> implements IReactive<T[]> {
     private _items;
     private dependents;
     private listeners;
+    private addListeners;
+    private removeListeners;
     /**
      * Creates a new reactive list with the given initial items.
      */
@@ -74,6 +76,28 @@ export declare class ReactiveList<T> implements IReactive<T[]> {
      * @returns A function that can be called to unregister the callback
      */
     onChange(callback: (items: T[]) => void): () => void;
+    /**
+     * Registers a callback for when an item is added to the list.
+     * @param callback The function to call with the added item and its index
+     * @returns A function that can be called to unregister the callback
+     */
+    onItemAdded(callback: (item: T, index: number) => void): () => void;
+    /**
+     * Registers a callback for when an item is removed from the list.
+     * @param callback The function to call with the removed item and its former index
+     * @returns A function that can be called to unregister the callback
+     */
+    onItemRemoved(callback: (item: T, index: number) => void): () => void;
+    /**
+     * Notifies listeners about an item being added.
+     * @private
+     */
+    private notifyItemAdded;
+    /**
+     * Notifies listeners about an item being removed.
+     * @private
+     */
+    private notifyItemRemoved;
     /**
      * Called when items change.
      */

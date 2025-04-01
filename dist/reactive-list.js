@@ -9,6 +9,8 @@ export class ReactiveList {
     constructor(initialItems = []) {
         this.dependents = new Set();
         this.listeners = new Set();
+        this.addListeners = new Set();
+        this.removeListeners = new Set();
         this._items = [...initialItems];
     }
     /**
@@ -35,7 +37,9 @@ export class ReactiveList {
      * Adds an item to the end of the list.
      */
     add(item) {
+        const index = this._items.length;
         this._items.push(item);
+        this.notifyItemAdded(item, index);
         this.onItemsChanged();
     }
     /**
@@ -43,6 +47,7 @@ export class ReactiveList {
      */
     insert(index, item) {
         this._items.splice(index, 0, item);
+        this.notifyItemAdded(item, index);
         this.onItemsChanged();
     }
     /**
@@ -52,6 +57,7 @@ export class ReactiveList {
         const index = this._items.indexOf(item);
         if (index >= 0) {
             this._items.splice(index, 1);
+            this.notifyItemRemoved(item, index);
             this.onItemsChanged();
             return true;
         }
@@ -63,6 +69,7 @@ export class ReactiveList {
     removeAt(index) {
         if (index >= 0 && index < this._items.length) {
             const item = this._items.splice(index, 1)[0];
+            this.notifyItemRemoved(item, index);
             this.onItemsChanged();
             return item;
         }
@@ -84,6 +91,15 @@ export class ReactiveList {
      */
     clear() {
         if (this._items.length > 0) {
+            // Only make a copy and notify if there are remove listeners
+            if (this.removeListeners.size > 0) {
+                const items = [...this._items]; // Make a copy for notifications
+                // Notify about each item removal from last to first
+                // (to maintain correct indexes during removal)
+                for (let i = items.length - 1; i >= 0; i--) {
+                    this.notifyItemRemoved(items[i], i);
+                }
+            }
             this._items = [];
             this.onItemsChanged();
         }
@@ -92,7 +108,23 @@ export class ReactiveList {
      * Replaces all items in the list.
      */
     replace(items) {
+        // Only process remove notifications if we have listeners
+        if (this.removeListeners.size > 0) {
+            // Handle removed items first (from last to first to maintain correct indexes)
+            const oldItems = [...this._items];
+            for (let i = oldItems.length - 1; i >= 0; i--) {
+                this.notifyItemRemoved(oldItems[i], i);
+            }
+        }
+        // Set new items
         this._items = [...items];
+        // Only process add notifications if we have listeners
+        if (this.addListeners.size > 0) {
+            // Handle added items
+            this._items.forEach((item, index) => {
+                this.notifyItemAdded(item, index);
+            });
+        }
         this.onItemsChanged();
     }
     /**
@@ -136,11 +168,55 @@ export class ReactiveList {
         };
     }
     /**
+     * Registers a callback for when an item is added to the list.
+     * @param callback The function to call with the added item and its index
+     * @returns A function that can be called to unregister the callback
+     */
+    onItemAdded(callback) {
+        this.addListeners.add(callback);
+        return () => {
+            this.addListeners.delete(callback);
+        };
+    }
+    /**
+     * Registers a callback for when an item is removed from the list.
+     * @param callback The function to call with the removed item and its former index
+     * @returns A function that can be called to unregister the callback
+     */
+    onItemRemoved(callback) {
+        this.removeListeners.add(callback);
+        return () => {
+            this.removeListeners.delete(callback);
+        };
+    }
+    /**
+     * Notifies listeners about an item being added.
+     * @private
+     */
+    notifyItemAdded(item, index) {
+        if (this.addListeners.size > 0) {
+            this.addListeners.forEach(listener => listener(item, index));
+        }
+    }
+    /**
+     * Notifies listeners about an item being removed.
+     * @private
+     */
+    notifyItemRemoved(item, index) {
+        if (this.removeListeners.size > 0) {
+            this.removeListeners.forEach(listener => listener(item, index));
+        }
+    }
+    /**
      * Called when items change.
      */
     onItemsChanged() {
-        this.notifyDependents();
-        this.listeners.forEach(listener => listener(this._items));
+        if (this.dependents.size > 0) {
+            this.notifyDependents();
+        }
+        if (this.listeners.size > 0) {
+            this.listeners.forEach(listener => listener(this._items));
+        }
     }
     /**
      * Adds a dependent to this list.
