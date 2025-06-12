@@ -24,26 +24,34 @@ export class Computed<T> implements IDependent, IReactive<T> {
 	}
 
 	/**
-	 * Gets the current computed value, recalculating if necessary.
+	 * Gets the current computed value, recalculating if necessary, without tracking dependencies.
 	 */
 	get value(): T {
-		// Track that the current computation depends on this computed value
-		DependencyTracker.trackDependency(this);
-
-		// Return the up-to-date value
-		return this.peek();
-	}
-
-	/**
-	 * Gets the current value without tracking dependencies.
-	 */
-	peek(): T {
 		// If the value is dirty, recalculate it
 		if (this.isDirty) {
 			this.recompute();
 		}
 
 		return this.cachedValue;
+	}
+
+	/**
+	 * Gets the current value without tracking dependencies.
+	 * @deprecated Use value property instead, which now doesn't track dependencies
+	 */
+	peek(): T {
+		return this.value;
+	}
+
+	/**
+	 * Gets the current value and tracks this as a dependency.
+	 */
+	use(): T {
+		// Track that the current computation depends on this computed value
+		DependencyTracker.trackDependency(this);
+
+		// Return the up-to-date value
+		return this.value;
 	}
 
 	/**
@@ -148,14 +156,14 @@ export class Computed<T> implements IDependent, IReactive<T> {
 	 * Creates a new computed value that transforms the value of this computed.
 	 */
 	map<R>(selector: (value: T) => R): Computed<R> {
-		return new Computed<R>(() => selector(this.value));
+		return new Computed<R>(() => selector(this.use()));
 	}
 
 	/**
 	 * Creates a new computed boolean value that tests a condition on this computed's value.
 	 */
 	filter(predicate: (value: T) => boolean): Computed<boolean> {
-		return new Computed<boolean>(() => predicate(this.value));
+		return new Computed<boolean>(() => predicate(this.use()));
 	}
 
 	/**
@@ -182,7 +190,7 @@ export class Computed<T> implements IDependent, IReactive<T> {
 		}
 
 		return new Computed<R[]>(() => {
-			const array = this.value as any[];
+			const array = this.use() as any[];
 			return array.map(selector);
 		});
 	}
@@ -197,7 +205,7 @@ export class Computed<T> implements IDependent, IReactive<T> {
 		}
 
 		return new Computed<T>(() => {
-			const array = this.value as any[];
+			const array = this.use() as any[];
 			return array.filter(predicate) as T;
 		});
 	}
@@ -212,7 +220,7 @@ export class Computed<T> implements IDependent, IReactive<T> {
 		}
 
 		return new Computed<boolean>(() => {
-			const array = this.value as any[];
+			const array = this.use() as any[];
 			return array.some(predicate);
 		});
 	}
@@ -227,7 +235,7 @@ export class Computed<T> implements IDependent, IReactive<T> {
 		}
 
 		return new Computed<boolean>(() => {
-			const array = this.value as any[];
+			const array = this.use() as any[];
 			return array.every(predicate);
 		});
 	}

@@ -16,10 +16,9 @@ export class State<T> implements IReactive<T> {
 	}
 
 	/**
-	 * Gets the current value of the state, tracking dependencies.
+	 * Gets the current value of the state without tracking dependencies.
 	 */
 	get value(): T {
-		DependencyTracker.trackDependency(this);
 		return this._value;
 	}
 
@@ -36,8 +35,17 @@ export class State<T> implements IReactive<T> {
 
 	/**
 	 * Gets the current value without tracking dependencies.
+	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T {
+		return this._value;
+	}
+
+	/**
+	 * Gets the current value and tracks this as a dependency.
+	 */
+	use(): T {
+		DependencyTracker.trackDependency(this);
 		return this._value;
 	}
 
@@ -91,7 +99,7 @@ export class State<T> implements IReactive<T> {
 	map<R>(selector: (value: T) => R) {
 		// This will be implemented in Computed, but we provide a convenient API here
 		const { Computed } = require('./computed');
-		return new Computed(() => selector(this.value));
+		return new Computed(() => selector(this.use()));
 	}
 
 	/**
@@ -99,7 +107,7 @@ export class State<T> implements IReactive<T> {
 	 */
 	filter(predicate: (value: T) => boolean) {
 		const { Computed } = require('./computed');
-		return new Computed(() => predicate(this.value));
+		return new Computed(() => predicate(this.use()));
 	}
 
 	/**

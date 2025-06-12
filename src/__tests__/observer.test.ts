@@ -26,7 +26,7 @@ describe('Observer', () => {
 
 	test('should execute callback when computed value changes', () => {
 		const state = new State(1);
-		const computed = new Computed(() => state.value * 2);
+		const computed = new Computed(() => state.use() * 2);
 		const mockCallback = jest.fn();
 
 		Observer.watch(computed, mockCallback);
@@ -105,7 +105,7 @@ describe('Observer', () => {
 		let computed_count = 0;
 		const computed = new Computed(() => {
 			computed_count++;
-			return state.value * 2;
+			return state.use() * 2;
 		});
 
 		const mockCallback = jest.fn();

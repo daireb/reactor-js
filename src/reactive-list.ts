@@ -19,24 +19,33 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	}
 
 	/**
-	 * Gets the current items array, tracking dependencies.
+	 * Gets the current items array without tracking dependencies.
 	 */
 	get value(): T[] {
-		DependencyTracker.trackDependency(this);
 		return [...this._items]; // Return a copy to prevent direct mutation
 	}
 
 	/**
 	 * Gets the current items without tracking dependencies.
+	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T[] {
 		return [...this._items];
 	}
 
 	/**
-	 * Gets the number of items in the list.
+	 * Gets the current items array and tracks this as a dependency.
+	 */
+	use(): T[] {
+		DependencyTracker.trackDependency(this);
+		return [...this._items]; // Return a copy to prevent direct mutation
+	}
+
+	/**
+	 * Gets the number of items in the list and tracks this as a dependency.
 	 */
 	get length(): number {
+		// We still track the dependency here since this is a derived property
 		DependencyTracker.trackDependency(this);
 		return this._items.length;
 	}
@@ -148,8 +157,8 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	}
 
 	/**
-	 * Gets an item at the specified index.
-	 * Note: This does NOT track dependencies on specific items.
+	 * Gets an item at the specified index and tracks this as a dependency.
+	 * Note: This tracks dependency on the whole list, not specific items.
 	 */
 	at(index: number): T | undefined {
 		DependencyTracker.trackDependency(this);
@@ -157,7 +166,7 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	}
 
 	/**
-	 * Finds an item in the list using a predicate.
+	 * Finds an item in the list using a predicate and tracks this as a dependency.
 	 */
 	find(predicate: (item: T) => boolean): T | undefined {
 		DependencyTracker.trackDependency(this);
@@ -169,7 +178,7 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	 */
 	filter(predicate: (item: T) => boolean): Computed<T[]> {
 		const { Computed } = require('./computed');
-		return new Computed(() => this.value.filter(predicate));
+		return new Computed(() => this.use().filter(predicate));
 	}
 
 	/**
@@ -177,7 +186,7 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	 */
 	map<R>(selector: (item: T) => R): Computed<R[]> {
 		const { Computed } = require('./computed');
-		return new Computed(() => this.value.map(selector));
+		return new Computed(() => this.use().map(selector));
 	}
 
 	/**

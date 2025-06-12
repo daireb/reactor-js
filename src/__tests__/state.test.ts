@@ -26,13 +26,31 @@ describe('State', () => {
 		expect(mockCallback).not.toHaveBeenCalled();
 	});
 
-	test('peek() should return the current value without tracking dependencies', () => {
+	test('value should return the current value without tracking dependencies', () => {
+		const state = new State(42);
+		expect(state.value).toBe(42);
+
+		// Modify value
+		state.value = 100;
+		expect(state.value).toBe(100);
+	});
+
+	test('peek() should return the current value without tracking dependencies (deprecated, same as value)', () => {
 		const state = new State(42);
 		expect(state.peek()).toBe(42);
 
 		// Modify value
 		state.value = 100;
 		expect(state.peek()).toBe(100);
+	});
+
+	test('use() should return the current value and track dependencies', () => {
+		const state = new State(42);
+		expect(state.use()).toBe(42);
+
+		// Modify value
+		state.value = 100;
+		expect(state.use()).toBe(100);
 	});
 
 	test('map() should create a derived computed value', () => {

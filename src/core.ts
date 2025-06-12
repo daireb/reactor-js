@@ -40,14 +40,20 @@ export interface INotifiable {
  */
 export interface IReactive<T> extends IObservable, INotifiable {
 	/**
-	 * Gets the current value.
+	 * Gets the current value without tracking dependencies.
 	 */
 	readonly value: T;
 
 	/**
 	 * Gets the current value without tracking dependencies.
+	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T;
+
+	/**
+	 * Gets the current value and tracks this as a dependency.
+	 */
+	use(): T;
 
 	/**
 	 * Registers a callback for value changes.

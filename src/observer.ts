@@ -18,10 +18,10 @@ export class Observer {
 	 */
 	static watch<T>(reactive: IReactive<T>, callback: (value: T) => void): Observer {
 		// Execute callback with initial value
-		callback(reactive.peek());
+		callback(reactive.value);
 
 		// Create observer
-		const observer = new Observer(() => callback(reactive.peek()));
+		const observer = new Observer(() => callback(reactive.value));
 
 		// Subscribe to value changes
 		const cleanup = reactive.onChange(() => {

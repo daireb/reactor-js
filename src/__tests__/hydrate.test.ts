@@ -24,7 +24,7 @@ describe('Hydrate', () => {
 		const obj = {} as any;
 		const firstNameState = new State<string>('John');
 		const lastNameState = new State<string>('Doe');
-		const fullNameComputed = new Computed(() => `${firstNameState.value} ${lastNameState.value}`);
+		const fullNameComputed = new Computed(() => `${firstNameState.use()} ${lastNameState.use()}`);
 
 		// Act
 		Hydrate(obj, {
@@ -66,7 +66,7 @@ describe('Hydrate', () => {
 		const obj = {} as any;
 		const nameState = new State<string>('John');
 		const ageState = new State<number>(30);
-		const isAdultComputed = new Computed(() => ageState.value >= 18);
+		const isAdultComputed = new Computed(() => ageState.use() >= 18);
 
 		// Act
 		Hydrate(obj, {

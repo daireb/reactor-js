@@ -31,8 +31,8 @@ const lastName = new State<string>('Doe');
 const age = new State<number>(25);
 
 // 3. Create computed values based on states
-const fullName = new Computed(() => `${firstName.value} ${lastName.value}`);
-const isAdult = new Computed(() => age.value >= 18);
+const fullName = new Computed(() => `${firstName.use()} ${lastName.use()}`);
+const isAdult = new Computed(() => age.use() >= 18);
 
 // 4. Hydrate the object with both reactive values and constants
 const dispose = Hydrate(user, {

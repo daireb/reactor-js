@@ -161,13 +161,32 @@ describe('ReactiveList', () => {
 	test('should track dependencies properly', () => {
 		const list = new ReactiveList<number>([1, 2, 3]);
 		const computed = new Computed(() => {
-			return list.value.filter(x => x > 1).map(x => x * 2);
+			return list.use().filter(x => x > 1).map(x => x * 2);
 		});
 
 		expect(computed.value).toEqual([4, 6]);
 
 		list.add(4);
 		expect(computed.value).toEqual([4, 6, 8]);
+	});
+
+	// Tests for the new use() method
+	test('use() should return items and track dependencies', () => {
+		const list = new ReactiveList<number>([1, 2, 3]);
+
+		// Create a computed that depends on list via use()
+		const computed = new Computed(() => {
+			const items = list.use(); // This should track the dependency
+			return items.reduce((sum, item) => sum + item, 0);
+		});
+
+		expect(computed.value).toBe(6); // 1 + 2 + 3
+
+		// Update the list
+		list.add(4);
+
+		// The computed should update automatically
+		expect(computed.value).toBe(10); // 1 + 2 + 3 + 4
 	});
 
 	// Should not notify when value doesn't change meaningfully

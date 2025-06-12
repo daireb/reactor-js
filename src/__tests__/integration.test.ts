@@ -10,15 +10,15 @@ describe('Integration tests', () => {
 
 		// Create computed values with dependencies
 		const fullName = new Computed(() =>
-			`${firstName.value} ${lastName.value}`
+			`${firstName.use()} ${lastName.use()}`
 		);
 
 		const displayName = new Computed(() =>
-			showFullName.value ? fullName.value : firstName.value
+			showFullName.use() ? fullName.use() : firstName.use()
 		);
 
 		const greeting = new Computed(() =>
-			`Hello, ${displayName.value}!`
+			`Hello, ${displayName.use()}!`
 		);
 
 		// Track updates
@@ -53,7 +53,7 @@ describe('Integration tests', () => {
 
 		// This would cause a circular dependency if we're not careful
 		const doubled = new Computed(() => {
-			const val = count.value * 2;
+			const val = count.use() * 2;
 			return val;
 		});
 
@@ -77,11 +77,11 @@ describe('Integration tests', () => {
 
 			// Create computed values to track game state
 			const enemies = new Computed(() =>
-				entities.value.filter(e => e.type === 'enemy')
+				entities.use().filter(e => e.type === 'enemy')
 			);
 
 			const averageEnemyHealth = new Computed(() => {
-				const enemyList = enemies.value;
+				const enemyList = enemies.use();
 				if (enemyList.length === 0) return 0;
 
 				const total = enemyList.reduce((sum, e) => sum + e.health, 0);
@@ -89,9 +89,9 @@ describe('Integration tests', () => {
 			});
 
 			const gameStatus = new Computed(() => {
-				const enemyList = enemies.value;
+				const enemyList = enemies.use();
 				if (enemyList.length === 0) return 'Victory';
-				if (averageEnemyHealth.value < 30) return 'Almost Victory';
+				if (averageEnemyHealth.use() < 30) return 'Almost Victory';
 				return 'In Progress';
 			});
 
@@ -133,7 +133,7 @@ describe('Integration tests', () => {
 
 			// Compute distances from origin
 			const distances = new Computed(() => {
-				return entities.value.map(entity => {
+				return entities.use().map(entity => {
 					const { x, y } = entity.position;
 					return {
 						id: entity.id,
@@ -144,7 +144,7 @@ describe('Integration tests', () => {
 
 			// Get entities within range
 			const withinRange = new Computed(() => {
-				return distances.value
+				return distances.use()
 					.filter(item => item.distance < 10)
 					.map(item => item.id);
 			});

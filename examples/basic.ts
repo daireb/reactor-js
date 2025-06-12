@@ -6,10 +6,10 @@ const count = new State(0);
 const message = new State("Hello");
 
 // Create computed values that react to state changes
-const countDoubled = new Computed(() => count.value * 2);
+const countDoubled = new Computed(() => count.use() * 2);
 
 // Using the fluent API
-const countMessage = count.map(c => `${message.value}, Count: ${c}`);
+const countMessage = count.map(c => `${message.use()}, Count: ${c}`);
 
 // Observe changes to state and computed values
 const countObserver = Observer.watch(count, value => {
