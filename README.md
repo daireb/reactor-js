@@ -1,4 +1,4 @@
-# ReactorJS
+# ReactorJS v0.3
 
 ReactorJS is a lightweight, reactive state management library for JavaScript and TypeScript applications inspired by [Fusion](https://elttob.uk/Fusion) for Roblox.
 
