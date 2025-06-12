@@ -1,8 +1,11 @@
-import { DependencyTracker } from './core';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Computed = void 0;
+const core_1 = require("./core");
 /**
  * Represents a computed value that automatically updates when its dependencies change.
  */
-export class Computed {
+class Computed {
     /**
      * Creates a new computed value with the given compute function.
      */
@@ -18,13 +21,18 @@ export class Computed {
         const _ = this.value;
     }
     /**
-     * Gets the current computed value, recalculating if necessary.
+     * Gets the current computed value, recalculating if necessary, without tracking dependencies.
      */
     get value() {
-        // Track that the current computation depends on this computed value
-        DependencyTracker.trackDependency(this);
-        // Return the up-to-date value
         return this.peek();
+    }
+    /**
+     * Sets the current value.
+     * @param newValue The new value to set
+     * @throws Error Computed values cannot be set directly
+     */
+    set(newValue) {
+        throw new Error("Cannot set the value of a computed. The value is derived from its dependencies.");
     }
     /**
      * Gets the current value without tracking dependencies.
@@ -37,13 +45,22 @@ export class Computed {
         return this.cachedValue;
     }
     /**
+     * Gets the current value and tracks this as a dependency.
+     */
+    use() {
+        // Track that the current computation depends on this computed value
+        core_1.DependencyTracker.trackDependency(this);
+        // Return the up-to-date value
+        return this.value;
+    }
+    /**
      * Recalculates the value of the computed.
      */
     recompute() {
         // Clear existing dependencies before recalculating
         this.clearDependencies();
         // Recalculate the value, tracking dependencies
-        const { dependencies, result } = DependencyTracker.track(this, this.computeFunc);
+        const { dependencies, result } = core_1.DependencyTracker.track(this, this.computeFunc);
         this.dependencies = dependencies;
         this.cachedValue = result;
         this.isDirty = false;
@@ -124,13 +141,13 @@ export class Computed {
      * Creates a new computed value that transforms the value of this computed.
      */
     map(selector) {
-        return new Computed(() => selector(this.value));
+        return new Computed(() => selector(this.use()));
     }
     /**
      * Creates a new computed boolean value that tests a condition on this computed's value.
      */
     filter(predicate) {
-        return new Computed(() => predicate(this.value));
+        return new Computed(() => predicate(this.use()));
     }
     /**
      * Checks if two values are equal.
@@ -152,7 +169,7 @@ export class Computed {
             throw new Error("This operation is only available on computed arrays");
         }
         return new Computed(() => {
-            const array = this.value;
+            const array = this.use();
             return array.map(selector);
         });
     }
@@ -165,7 +182,7 @@ export class Computed {
             throw new Error("This operation is only available on computed arrays");
         }
         return new Computed(() => {
-            const array = this.value;
+            const array = this.use();
             return array.filter(predicate);
         });
     }
@@ -178,7 +195,7 @@ export class Computed {
             throw new Error("This operation is only available on computed arrays");
         }
         return new Computed(() => {
-            const array = this.value;
+            const array = this.use();
             return array.some(predicate);
         });
     }
@@ -191,9 +208,10 @@ export class Computed {
             throw new Error("This operation is only available on computed arrays");
         }
         return new Computed(() => {
-            const array = this.value;
+            const array = this.use();
             return array.every(predicate);
         });
     }
 }
+exports.Computed = Computed;
 //# sourceMappingURL=computed.js.map

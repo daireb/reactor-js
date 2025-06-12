@@ -14,15 +14,24 @@ export declare class ReactiveList<T> implements IReactive<T[]> {
      */
     constructor(initialItems?: T[]);
     /**
-     * Gets the current items array, tracking dependencies.
+     * Gets the current items array.
      */
     get value(): T[];
+    /**
+     * Sets the current items array.
+     * @param newItems The new items array to set
+     */
+    set(newItems: T[]): void;
     /**
      * Gets the current items without tracking dependencies.
      */
     peek(): T[];
     /**
-     * Gets the number of items in the list.
+     * Gets the current items array and tracks this as a dependency.
+     */
+    use(): T[];
+    /**
+     * Gets the number of items in the list and tracks this as a dependency.
      */
     get length(): number;
     /**
@@ -54,12 +63,12 @@ export declare class ReactiveList<T> implements IReactive<T[]> {
      */
     replace(items: T[]): void;
     /**
-     * Gets an item at the specified index.
-     * Note: This does NOT track dependencies on specific items.
+     * Gets an item at the specified index and tracks this as a dependency.
+     * Note: This tracks dependency on the whole list, not specific items.
      */
     at(index: number): T | undefined;
     /**
-     * Finds an item in the list using a predicate.
+     * Finds an item in the list using a predicate and tracks this as a dependency.
      */
     find(predicate: (item: T) => boolean): T | undefined;
     /**

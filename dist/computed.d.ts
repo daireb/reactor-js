@@ -15,13 +15,23 @@ export declare class Computed<T> implements IDependent, IReactive<T> {
      */
     constructor(computeFunc: () => T);
     /**
-     * Gets the current computed value, recalculating if necessary.
+     * Gets the current computed value, recalculating if necessary, without tracking dependencies.
      */
     get value(): T;
+    /**
+     * Sets the current value.
+     * @param newValue The new value to set
+     * @throws Error Computed values cannot be set directly
+     */
+    set(newValue: T): void;
     /**
      * Gets the current value without tracking dependencies.
      */
     peek(): T;
+    /**
+     * Gets the current value and tracks this as a dependency.
+     */
+    use(): T;
     /**
      * Recalculates the value of the computed.
      */

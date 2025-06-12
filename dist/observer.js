@@ -1,7 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Observer = void 0;
 /**
  * Represents an observer that can subscribe to changes in reactive state.
  */
-export class Observer {
+class Observer {
     constructor(callback) {
         this.isDisposed = false;
         this.callback = callback;
@@ -12,9 +15,9 @@ export class Observer {
      */
     static watch(reactive, callback) {
         // Execute callback with initial value
-        callback(reactive.peek());
+        callback(reactive.value);
         // Create observer
-        const observer = new Observer(() => callback(reactive.peek()));
+        const observer = new Observer(() => callback(reactive.value));
         // Subscribe to value changes
         const cleanup = reactive.onChange(() => {
             if (observer.callback) {
@@ -39,4 +42,5 @@ export class Observer {
         }
     }
 }
+exports.Observer = Observer;
 //# sourceMappingURL=observer.js.map

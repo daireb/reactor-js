@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Hydrate = Hydrate;
 /**
  * Binds properties of an object to reactive values (State or Computed) or constants.
  * Properties bound to reactive values will update automatically when the reactive value changes.
@@ -11,7 +14,7 @@
  * const person = {};
  * const nameState = new State("John");
  * const ageState = new State(30);
- * const fullNameComputed = new Computed(() => `${nameState.value} Doe`);
+ * const fullNameComputed = new Computed(() => `${nameState.use()} Doe`);
  *
  * const dispose = Hydrate(person, {
  *   name: nameState,
@@ -24,7 +27,7 @@
  * dispose();
  * ```
  */
-export function Hydrate(obj, bindings) {
+function Hydrate(obj, bindings) {
     const unsubscribers = [];
     // Process each binding
     for (const key in bindings) {

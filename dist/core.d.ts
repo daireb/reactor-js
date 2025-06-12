@@ -34,13 +34,22 @@ export interface INotifiable {
  */
 export interface IReactive<T> extends IObservable, INotifiable {
     /**
-     * Gets the current value.
+     * Gets the current value without tracking dependencies.
      */
     readonly value: T;
     /**
      * Gets the current value without tracking dependencies.
      */
     peek(): T;
+    /**
+     * Gets the current value and tracks this as a dependency.
+     */
+    use(): T;
+    /**
+     * Sets the current value.
+     * @param newValue The new value to set
+     */
+    set(newValue: T): void;
     /**
      * Registers a callback for value changes.
      * @param callback The function to call when the value changes

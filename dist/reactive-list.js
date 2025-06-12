@@ -1,24 +1,34 @@
-import { DependencyTracker } from './core';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReactiveList = void 0;
+const core_1 = require("./core");
 /**
  * Represents a reactive list that notifies dependents when its items change.
  */
-export class ReactiveList {
+class ReactiveList {
     /**
      * Creates a new reactive list with the given initial items.
      */
-    constructor(initialItems = []) {
+    constructor(initialItems) {
+        this._items = [];
         this.dependents = new Set();
         this.listeners = new Set();
         this.addListeners = new Set();
         this.removeListeners = new Set();
-        this._items = [...initialItems];
+        this._items = initialItems ? [...initialItems] : [];
     }
     /**
-     * Gets the current items array, tracking dependencies.
+     * Gets the current items array.
      */
     get value() {
-        DependencyTracker.trackDependency(this);
-        return [...this._items]; // Return a copy to prevent direct mutation
+        return this.peek();
+    }
+    /**
+     * Sets the current items array.
+     * @param newItems The new items array to set
+     */
+    set(newItems) {
+        this.replace(newItems);
     }
     /**
      * Gets the current items without tracking dependencies.
@@ -27,10 +37,18 @@ export class ReactiveList {
         return [...this._items];
     }
     /**
-     * Gets the number of items in the list.
+     * Gets the current items array and tracks this as a dependency.
+     */
+    use() {
+        core_1.DependencyTracker.trackDependency(this);
+        return [...this._items]; // Return a copy to prevent direct mutation
+    }
+    /**
+     * Gets the number of items in the list and tracks this as a dependency.
      */
     get length() {
-        DependencyTracker.trackDependency(this);
+        // We still track the dependency here since this is a derived property
+        core_1.DependencyTracker.trackDependency(this);
         return this._items.length;
     }
     /**
@@ -128,18 +146,18 @@ export class ReactiveList {
         this.onItemsChanged();
     }
     /**
-     * Gets an item at the specified index.
-     * Note: This does NOT track dependencies on specific items.
+     * Gets an item at the specified index and tracks this as a dependency.
+     * Note: This tracks dependency on the whole list, not specific items.
      */
     at(index) {
-        DependencyTracker.trackDependency(this);
+        core_1.DependencyTracker.trackDependency(this);
         return this._items[index];
     }
     /**
-     * Finds an item in the list using a predicate.
+     * Finds an item in the list using a predicate and tracks this as a dependency.
      */
     find(predicate) {
-        DependencyTracker.trackDependency(this);
+        core_1.DependencyTracker.trackDependency(this);
         return this._items.find(predicate);
     }
     /**
@@ -147,14 +165,14 @@ export class ReactiveList {
      */
     filter(predicate) {
         const { Computed } = require('./computed');
-        return new Computed(() => this.value.filter(predicate));
+        return new Computed(() => this.use().filter(predicate));
     }
     /**
      * Maps the list to create a reactive computed list.
      */
     map(selector) {
         const { Computed } = require('./computed');
-        return new Computed(() => this.value.map(selector));
+        return new Computed(() => this.use().map(selector));
     }
     /**
      * Registers a callback for when items change.
@@ -240,4 +258,5 @@ export class ReactiveList {
         });
     }
 }
+exports.ReactiveList = ReactiveList;
 //# sourceMappingURL=reactive-list.js.map

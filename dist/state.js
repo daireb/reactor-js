@@ -1,8 +1,11 @@
-import { DependencyTracker } from './core';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.State = void 0;
+const core_1 = require("./core");
 /**
  * Represents a reactive state container that notifies dependents when its value changes.
  */
-export class State {
+class State {
     /**
      * Creates a new reactive state with the given initial value.
      */
@@ -12,10 +15,9 @@ export class State {
         this._value = initialValue;
     }
     /**
-     * Gets the current value of the state, tracking dependencies.
+     * Gets the current value of the state without tracking dependencies.
      */
     get value() {
-        DependencyTracker.trackDependency(this);
         return this._value;
     }
     /**
@@ -23,6 +25,14 @@ export class State {
      * If the value has changed, notifies dependents and triggers change listeners.
      */
     set value(newValue) {
+        this.set(newValue);
+    }
+    /**
+     * Sets the current value of the state.
+     * If the value has changed, notifies dependents and triggers change listeners.
+     * @param newValue The new value to set
+     */
+    set(newValue) {
         if (!this.equals(this._value, newValue)) {
             this._value = newValue;
             this.onValueChanged();
@@ -32,6 +42,13 @@ export class State {
      * Gets the current value without tracking dependencies.
      */
     peek() {
+        return this._value;
+    }
+    /**
+     * Gets the current value and tracks this as a dependency.
+     */
+    use() {
+        core_1.DependencyTracker.trackDependency(this);
         return this._value;
     }
     /**
@@ -79,14 +96,14 @@ export class State {
     map(selector) {
         // This will be implemented in Computed, but we provide a convenient API here
         const { Computed } = require('./computed');
-        return new Computed(() => selector(this.value));
+        return new Computed(() => selector(this.use()));
     }
     /**
      * Creates a derived boolean state that tests a condition on this state's value.
      */
     filter(predicate) {
         const { Computed } = require('./computed');
-        return new Computed(() => predicate(this.value));
+        return new Computed(() => predicate(this.use()));
     }
     /**
      * Checks if two values are equal.
@@ -97,4 +114,5 @@ export class State {
         return a === b;
     }
 }
+exports.State = State;
 //# sourceMappingURL=state.js.map

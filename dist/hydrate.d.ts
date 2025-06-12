@@ -16,7 +16,7 @@ type BindingTable<T> = {
  * const person = {};
  * const nameState = new State("John");
  * const ageState = new State(30);
- * const fullNameComputed = new Computed(() => `${nameState.value} Doe`);
+ * const fullNameComputed = new Computed(() => `${nameState.use()} Doe`);
  *
  * const dispose = Hydrate(person, {
  *   name: nameState,

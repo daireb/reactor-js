@@ -1,10 +1,13 @@
+"use strict";
 //#region Interfaces
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DependencyTracker = void 0;
 //#endregion
 //#region Dependency Tracker
 /**
  * Static class for tracking dependencies during computation.
  */
-export class DependencyTracker {
+class DependencyTracker {
     /**
      * Gets the current dependent being tracked, if any.
      */
@@ -41,6 +44,7 @@ export class DependencyTracker {
         }
     }
 }
+exports.DependencyTracker = DependencyTracker;
 DependencyTracker.dependentStack = [];
 DependencyTracker.currentDependencies = new Set();
 //# sourceMappingURL=core.js.map

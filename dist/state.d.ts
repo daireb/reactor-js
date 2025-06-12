@@ -11,7 +11,7 @@ export declare class State<T> implements IReactive<T> {
      */
     constructor(initialValue: T);
     /**
-     * Gets the current value of the state, tracking dependencies.
+     * Gets the current value of the state without tracking dependencies.
      */
     get value(): T;
     /**
@@ -20,9 +20,19 @@ export declare class State<T> implements IReactive<T> {
      */
     set value(newValue: T);
     /**
+     * Sets the current value of the state.
+     * If the value has changed, notifies dependents and triggers change listeners.
+     * @param newValue The new value to set
+     */
+    set(newValue: T): void;
+    /**
      * Gets the current value without tracking dependencies.
      */
     peek(): T;
+    /**
+     * Gets the current value and tracks this as a dependency.
+     */
+    use(): T;
     /**
      * Registers a callback for value changes.
      * @param callback The function to call when the value changes
