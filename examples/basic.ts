@@ -21,8 +21,8 @@ const messageObserver = Observer.watch(countMessage, msg => {
 });
 
 // Update state values
-count.value = 1; // Triggers updates to countDoubled, countMessage, and observers
-message.value = "Hi"; // Triggers update to countMessage and observers
+count.set(1); // Triggers updates to countDoubled, countMessage, and observers
+message.set("Hi"); // Triggers update to countMessage and observers
 
 // Clean up when done
 countObserver.dispose();

@@ -1,4 +1,4 @@
-# ReactorJS v0.3
+# ReactorJS v0.4
 
 ReactorJS is a lightweight, reactive state management library for JavaScript and TypeScript applications inspired by [Fusion](https://elttob.uk/Fusion) for Roblox.
 
@@ -8,7 +8,7 @@ ReactorJS is a lightweight, reactive state management library for JavaScript and
 - **Computed Values**: Define values that are derived from other state and automatically update
 - **Reactive Lists**: Manage collections of items with specialised list operations that maintain reactivity
 - **LINQ-style Operations**: Chain multiple transformations on reactive collections with fluent syntax
-- **Dependency Tracking**: Automatic tracking of dependencies between states and computed values
+- **Explicit Dependency Tracking**: Clear tracking of dependencies between states and computed values
 - **Fluent API**: Intuitive methods for transforming and combining reactive state
 - **Object Hydration**: Bind object properties to reactive values that update automatically
 - **Type Safety**: Fully type-safe API with generics support throughout
@@ -38,10 +38,10 @@ const count = new State(0);
 const message = new State("Hello");
 
 // Create computed values that react to state changes
-const countDoubled = new Computed(() => count.value * 2);
+const countDoubled = new Computed(() => count.use() * 2);
 
 // Using the fluent API
-const countMessage = count.map(c => `${message.value}, Count: ${c}`);
+const countMessage = count.map(c => `${message.use()}, Count: ${c}`);
 
 // Observe changes
 const observer = Observer.watch(countMessage, msg => {
@@ -49,7 +49,7 @@ const observer = Observer.watch(countMessage, msg => {
 });
 
 // Update state values
-count.value = 1; // Triggers updates
+count.set(1); // Triggers updates
 
 // Clean up when done
 observer.dispose();
@@ -75,7 +75,7 @@ const lastName = new State('Doe');
 const age = new State(30);
 
 // Create a computed value
-const fullName = new Computed(() => `${firstName.value} ${lastName.value}`);
+const fullName = new Computed(() => `${firstName.use()} ${lastName.use()}`);
 
 // Hydrate the object with reactive values and constants
 const dispose = Hydrate(user, {
@@ -90,7 +90,7 @@ const dispose = Hydrate(user, {
 user.displayInfo();  // "John Doe is 30 years old"
 
 // When states change, object properties update automatically
-firstName.value = 'Jane';
+firstName.set('Jane');
 user.displayInfo();  // "Jane Doe is 30 years old"
 
 // Clean up when done
@@ -115,7 +115,7 @@ const observer = ReactorJS.watch(doubled, value => {
 });
 
 // Update state values
-count.value = 5; // Triggers updates
+count.set(5); // Triggers updates
 
 // Clean up when done
 observer.dispose();
@@ -143,7 +143,7 @@ const lowHealthEnemies = enemies
 
 // Create a computed value based on the list
 const enemyCount = new Computed(() => 
-  entities.value.filter(e => e.type === 'enemy').length
+  entities.use().filter(e => e.type === 'enemy').length
 );
 
 // Observe changes to the entities
@@ -163,8 +163,10 @@ entities.remove({ id: 2, type: 'enemy', health: 50 });
 A container for reactive values.
 
 - `new State<T>(initialValue: T)`: Create a new state
-- `.value`: Get or set the current value
+- `.use()`: Get the current value and track as a dependency
+- `.set(newValue: T)`: Set the current value
 - `.peek()`: Get the current value without tracking dependencies
+- `.value`: Get or set the current value 
 - `.map<R>(selector: (value: T) => R)`: Create a computed value based on this state
 - `.filter(predicate: (value: T) => boolean)`: Create a computed boolean value
 
@@ -173,8 +175,9 @@ A container for reactive values.
 A value derived from other reactive values.
 
 - `new Computed<T>(computeFunc: () => T)`: Create a new computed value
-- `.value`: Get the current computed value
+- `.use()`: Get the current value and track as a dependency
 - `.peek()`: Get the current value without tracking dependencies
+- `.value`: Get the current value without tracking dependencies
 - `.map<R>(selector: (value: T) => R)`: Create a computed value based on this computed
 - `.filter(predicate: (value: T) => boolean)`: Create a computed boolean value
 - `.forceEager`: Control whether to compute immediately on invalidation
@@ -191,9 +194,11 @@ When the computed value is an array, additional methods are available:
 A reactive collection of items with specialised operations.
 
 - `new ReactiveList<T>(initialItems?: T[])`: Create a new reactive list
-- `.value`: Get the current items array
+- `.use()`: Get the current items array and track as a dependency
+- `.set(newItems: T[])`: Set the current items array (same as .replace())
+- `.peek()`: Get the current items array without tracking dependencies
+- `.value`: Get the current items array without tracking dependencies
 - `.length`: Get the number of items
-- `.peek()`: Get the current items without tracking dependencies
 - `.add(item: T)`: Add an item to the end of the list
 - `.insert(index: number, item: T)`: Insert an item at the specified index
 - `.remove(item: T)`: Remove an item from the list

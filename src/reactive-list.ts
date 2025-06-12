@@ -5,7 +5,7 @@ import { IDependent, IReactive, DependencyTracker } from './core';
  * Represents a reactive list that notifies dependents when its items change.
  */
 export class ReactiveList<T> implements IReactive<T[]> {
-	private _items: T[];
+	private _items: T[] = [];
 	private dependents: Set<IDependent> = new Set<IDependent>();
 	private listeners: Set<(items: T[]) => void> = new Set();
 	private addListeners: Set<(item: T, index: number) => void> = new Set();
@@ -14,20 +14,27 @@ export class ReactiveList<T> implements IReactive<T[]> {
 	/**
 	 * Creates a new reactive list with the given initial items.
 	 */
-	constructor(initialItems: T[] = []) {
-		this._items = [...initialItems];
+	constructor(initialItems?: T[]) {
+		this._items = initialItems ? [...initialItems] : [];
 	}
 
 	/**
-	 * Gets the current items array without tracking dependencies.
+	 * Gets the current items array.
 	 */
 	get value(): T[] {
-		return [...this._items]; // Return a copy to prevent direct mutation
+		return this.peek();
+	}
+
+	/**
+	 * Sets the current items array.
+	 * @param newItems The new items array to set
+	 */
+	set(newItems: T[]): void {
+		this.replace(newItems);
 	}
 
 	/**
 	 * Gets the current items without tracking dependencies.
-	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T[] {
 		return [...this._items];

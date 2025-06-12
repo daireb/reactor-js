@@ -1,6 +1,6 @@
 {
   "name": "reactorjs",
-  "version": "0.3",
+  "version": "0.4",
   "description": "A lightweight reactive state management library for JavaScript and TypeScript",
   "main": "index.js",
   "scripts": {

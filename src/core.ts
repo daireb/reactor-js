@@ -46,7 +46,6 @@ export interface IReactive<T> extends IObservable, INotifiable {
 
 	/**
 	 * Gets the current value without tracking dependencies.
-	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T;
 
@@ -54,6 +53,12 @@ export interface IReactive<T> extends IObservable, INotifiable {
 	 * Gets the current value and tracks this as a dependency.
 	 */
 	use(): T;
+
+	/**
+	 * Sets the current value.
+	 * @param newValue The new value to set
+	 */
+	set(newValue: T): void;
 
 	/**
 	 * Registers a callback for value changes.

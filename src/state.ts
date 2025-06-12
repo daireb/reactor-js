@@ -27,6 +27,15 @@ export class State<T> implements IReactive<T> {
 	 * If the value has changed, notifies dependents and triggers change listeners.
 	 */
 	set value(newValue: T) {
+		this.set(newValue);
+	}
+
+	/**
+	 * Sets the current value of the state.
+	 * If the value has changed, notifies dependents and triggers change listeners.
+	 * @param newValue The new value to set
+	 */
+	set(newValue: T): void {
 		if (!this.equals(this._value, newValue)) {
 			this._value = newValue;
 			this.onValueChanged();
@@ -35,7 +44,6 @@ export class State<T> implements IReactive<T> {
 
 	/**
 	 * Gets the current value without tracking dependencies.
-	 * @deprecated Use value property instead, which now doesn't track dependencies
 	 */
 	peek(): T {
 		return this._value;

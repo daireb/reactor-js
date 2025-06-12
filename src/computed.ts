@@ -27,20 +27,28 @@ export class Computed<T> implements IDependent, IReactive<T> {
 	 * Gets the current computed value, recalculating if necessary, without tracking dependencies.
 	 */
 	get value(): T {
+		return this.peek();
+	}
+
+	/**
+	 * Sets the current value.
+	 * @param newValue The new value to set
+	 * @throws Error Computed values cannot be set directly
+	 */
+	set(newValue: T): void {
+		throw new Error("Cannot set the value of a computed. The value is derived from its dependencies.");
+	}
+
+	/**
+	 * Gets the current value without tracking dependencies.
+	 */
+	peek(): T {
 		// If the value is dirty, recalculate it
 		if (this.isDirty) {
 			this.recompute();
 		}
 
 		return this.cachedValue;
-	}
-
-	/**
-	 * Gets the current value without tracking dependencies.
-	 * @deprecated Use value property instead, which now doesn't track dependencies
-	 */
-	peek(): T {
-		return this.value;
 	}
 
 	/**

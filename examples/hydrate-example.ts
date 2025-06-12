@@ -51,19 +51,19 @@ user.displayGreeting();
 
 // 6. Update a state - all dependent properties will update automatically
 console.log('After changing firstName:');
-firstName.value = 'Jane';
+firstName.set('Jane');
 user.displayGreeting();
 
 // 7. Update another state
 console.log('After changing age:');
-age.value = 17;
+age.set(17);
 user.displayGreeting();
 
 // 8. Update multiple states
 console.log('After changing multiple values:');
-firstName.value = 'Alex';
-lastName.value = 'Smith';
-age.value = 30;
+firstName.set('Alex');
+lastName.set('Smith');
+age.set(30);
 user.displayGreeting();
 
 // 9. Cleanup when done (in a real app, this would be called when the object is no longer needed)
@@ -72,6 +72,6 @@ dispose();
 
 // 10. After disposal, changes to state no longer affect the object
 console.log('After cleanup (changes should not affect the object):');
-firstName.value = 'Bob';
-age.value = 50;
+firstName.set('Bob');
+age.set(50);
 user.displayGreeting();  // Should still show Alex Smith, age 30
