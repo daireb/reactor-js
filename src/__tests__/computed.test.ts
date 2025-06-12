@@ -112,6 +112,27 @@ describe('Computed', () => {
 		expect(computed.peek()).toBe(42);
 	});
 
+	test('forceEager=false should not recompute immediately', () => {
+		const state = new State(1);
+
+		let computed_count = 0;
+		const computed = new Computed(() => {
+			computed_count++;
+			return state.value * 2
+		});
+
+		// Update state
+		state.value = 5;
+
+		// Callback should not be called immediately due to forceEager being false
+		expect(computed_count).toBe(1);
+
+		// Force recompute manually
+		computed.recompute();
+
+		expect(computed_count).toBe(2);
+	});
+
 	test('forceEager should recompute immediately when true', () => {
 		const state = new State(1);
 		const computed = new Computed(() => state.value * 2);

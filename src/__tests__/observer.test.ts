@@ -98,4 +98,27 @@ describe('Observer', () => {
 		expect(mockCallback1).not.toHaveBeenCalled();
 		expect(mockCallback2).toHaveBeenCalledWith(2);
 	});
+
+	test('should automatically cause computed to eager update', () => {
+		const state = new State(1);
+
+		let computed_count = 0;
+		const computed = new Computed(() => {
+			computed_count++;
+			return state.value * 2;
+		});
+
+		const mockCallback = jest.fn();
+
+		Observer.watch(computed, mockCallback);
+		mockCallback.mockClear(); // Clear the initial call
+
+		expect(computed.value).toBe(2); // Initial value should be 1 * 2
+		expect(computed_count).toBe(1); // Should have computed once
+
+		state.value = 3;
+
+		expect(mockCallback).toHaveBeenCalledWith(6); // Should be 3 * 2
+		expect(computed_count).toBe(2); // Should have recomputed once
+	});
 });
