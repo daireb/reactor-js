@@ -10,6 +10,7 @@ ReactorJS is a lightweight, reactive state management library for JavaScript and
 - **LINQ-style Operations**: Chain multiple transformations on reactive collections with fluent syntax
 - **Dependency Tracking**: Automatic tracking of dependencies between states and computed values
 - **Fluent API**: Intuitive methods for transforming and combining reactive state
+- **Object Hydration**: Bind object properties to reactive values that update automatically
 - **Type Safety**: Fully type-safe API with generics support throughout
 - **No Dependencies**: Vanilla JavaScript/TypeScript with no external dependencies
 
@@ -52,6 +53,48 @@ count.value = 1; // Triggers updates
 
 // Clean up when done
 observer.dispose();
+```
+
+### Hydrating Objects
+
+You can bind object properties to reactive values using the `Hydrate` function:
+
+```typescript
+import { State, Computed, Hydrate } from 'reactor-js';
+
+// Create an object
+const user = {
+  displayInfo() {
+    console.log(`${this.fullName} is ${this.age} years old`);
+  }
+};
+
+// Create reactive states
+const firstName = new State('John');
+const lastName = new State('Doe');
+const age = new State(30);
+
+// Create a computed value
+const fullName = new Computed(() => `${firstName.value} ${lastName.value}`);
+
+// Hydrate the object with reactive values and constants
+const dispose = Hydrate(user, {
+  firstName: firstName,     // Bound to a State
+  lastName: lastName,       // Bound to a State
+  age: age,                 // Bound to a State
+  fullName: fullName,       // Bound to a Computed
+  role: 'Admin'             // Constant value (not reactive)
+});
+
+// Use the object normally
+user.displayInfo();  // "John Doe is 30 years old"
+
+// When states change, object properties update automatically
+firstName.value = 'Jane';
+user.displayInfo();  // "Jane Doe is 30 years old"
+
+// Clean up when done
+dispose();
 ```
 
 Using the convenience functions:
@@ -169,6 +212,15 @@ Subscribes to changes in reactive values.
 
 - `Observer.watch<T>(reactive: IReactive<T>, callback: (value: T) => void)`: Create a new observer
 - `.dispose()`: Stop observing changes
+
+### Hydrate
+
+Binds object properties to reactive values.
+
+- `Hydrate<T>(obj: T, bindings: BindingTable<T>)`: Bind object properties to reactive values
+  - `obj`: The object to hydrate with reactive bindings
+  - `bindings`: An object mapping property names to their binding sources (State, Computed, or literal values)
+  - Returns a dispose function that can be called to remove all bindings
 
 ## License
 
